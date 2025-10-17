@@ -61,7 +61,7 @@ Salir
 
 El menú se repite tras cada acción para que no tengas que relanzar nada.
 
-<img width="641" height="465" alt="Captura de pantalla 2025-10-17 192922" src="https://github.com/user-attachments/assets/761b9d99-dfd6-492e-ac72-f9bef1f348b1"/>
+<img width="641" height="465" alt="Captura de pantalla 2025-10-17 192922" src="https://github.com/user-attachments/assets/761b9d99-dfd6-492e-ac72-f9bef1f348b1" />
 
 # 🛠️ 4) Qué hace cada script (y por qué)
 <details> <summary><b>A) <code>generar_claves.sh</code> — Generar par RSA</b></summary>
