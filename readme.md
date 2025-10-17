@@ -12,7 +12,7 @@ Scripts Bash con ventanitas (Zenity) para practicar confidencialidad:
 
 No necesitas ser experto en OpenSSL. El menú te guía. 😉
 
-🚀 1) Requisitos, instalación y uso
+# 🚀 1) Requisitos, instalación y uso
 Requisitos
 
 Ubuntu/Debian (o similar)
@@ -32,7 +32,7 @@ mkdir -p keyring
 Uso rápido
 ./menu.sh
 
-🗂️ 2) Estructura del proyecto
+# 🗂️ 2) Estructura del proyecto
 confidencialidad/
 |--- menu.sh                  # Menú principal
 |--- simetrico.sh             # Submenú: cifrar/descifrar (simétrico u híbrido)
@@ -41,7 +41,7 @@ confidencialidad/
 |--- gestion_publicas.sh      # Buscar/Importar/Exportar públicas
 |--- keyring/                 # Carpeta local para guardar públicas importadas
 
-🧭 3) Cómo se usa (paso a paso)
+# 🧭 3) Cómo se usa (paso a paso)
 Arrancar el menú
 ./menu.sh
 
@@ -61,8 +61,9 @@ Salir
 
 El menú se repite tras cada acción para que no tengas que relanzar nada.
 
-<img width="641" height="465" alt="Captura de pantalla 2025-10-17 192922" src="https://github.com/user-attachments/assets/761b9d99-dfd6-492e-ac72-f9bef1f348b1" />
-🛠️ 4) Qué hace cada script (y por qué)
+<img width="641" height="465" alt="Captura de pantalla 2025-10-17 192922" src="https://github.com/user-attachments/assets/761b9d99-dfd6-492e-ac72-f9bef1f348b1"/>
+
+# 🛠️ 4) Qué hace cada script (y por qué)
 <details> <summary><b>A) <code>generar_claves.sh</code> — Generar par RSA</b></summary>
 
 Te pide carpeta destino y tamaño (2048 o 4096 bits).
@@ -74,10 +75,10 @@ public.pem → clave pública (esta sí puedes compartir)
 
 Comandos clave (simple):
 
-# Genera la privada RSA con el número de bits elegido
+ Genera la privada RSA con el número de bits elegido
 openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:<BITS> -out private.pem
 
-# Saca la pública desde la privada
+ Saca la pública desde la privada
 openssl rsa -in private.pem -pubout -out public.pem
 
 
@@ -94,10 +95,10 @@ Si por error eliges una privada, te ofrece sacar su pública.
 
 Comandos:
 
-# Leer pública en modo legible
+ Leer pública en modo legible
 openssl rsa -pubin -in CLAVE_PUB.pem -text -noout
 
-# Extraer pública desde una privada
+ Extraer pública desde una privada
 openssl rsa -in CLAVE_PRIV.pem -pubout
 
 </details>
@@ -108,15 +109,15 @@ Eliges archivo → genera key.bin (32 bytes) → crea archivo.enc.
 
 openssl rand 32 > key.bin
 openssl enc -aes-256-cbc -salt -pbkdf2 -in ORIGEN -out SALIDA -pass file:key.bin
-# -aes-256-cbc (AES)
-# -salt + -pbkdf2 endurecen la derivación de clave
-# -pass file:key.bin usa el contenido de key.bin como “password”
+ -aes-256-cbc (AES)
+ -salt + -pbkdf2 endurecen la derivación de clave
+ -pass file:key.bin usa el contenido de key.bin como “password”
 
-2) Descifrar (AES-256)
+# 2) Descifrar (AES-256)
 openssl enc -d -aes-256-cbc -pbkdf2 -in CIFRADO.enc -out DESCIFRADO -pass file:key.bin
-# -d = descifrar
+ -d = descifrar
 
-3) Cifrar híbrido (AES + RSA pública)
+# 3) Cifrar híbrido (AES + RSA pública)
 
 Cifra datos con AES → data.enc
 
@@ -128,7 +129,7 @@ openssl pkeyutl -encrypt -pubin -inkey public.pem -in aes.tmp -out aes.key.enc
 # (por defecto PKCS#1 v1.5; si piden OAEP, añade:
 #  -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256)
 
-4) Descifrar híbrido (AES + RSA privada)
+#4) Descifrar híbrido (AES + RSA privada)
 
 Recupera clave AES con privada → descifra data.enc.
 
@@ -153,7 +154,7 @@ Exportar: saca una pública desde keyring/ a otra ruta.
 find DIRECTORIO -type f \( -name "*.pem" -o -name "*.pub" -o -name "*_public.pem" \)
 
 </details>
-✅ 5) Ejemplos rápidos (para probar que todo va)
+# ✅ 5) Ejemplos rápidos (para probar que todo va)
 
 Generar claves
 
@@ -173,7 +174,7 @@ Descifrado simétrico
 Híbrido
 
 ./simetrico.sh        # “Cifrar híbrido” → data.enc + aes.key.enc
-# En el receptor: “Descifrar híbrido” con su private.pem
+## En el receptor: “Descifrar híbrido” con su private.pem
 
 
 Ver pública
@@ -185,7 +186,7 @@ Gestión públicas
 
 ./gestion_publicas.sh # busca/importa/exporta
 
-🧠 6) Breve explicación del cifrado híbrido
+# 🧠 6) Breve explicación del cifrado híbrido
 
 El cifrado híbrido combina simétrico y asimétrico para aprovechar lo mejor de cada uno:
 
