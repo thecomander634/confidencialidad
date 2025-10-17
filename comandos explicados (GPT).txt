@@ -1,0 +1,93 @@
+Explicación de comandos
+    MENÚ.SH
+
+APP_TITLE="Criptografía — Menú principal"
+Variable con el título que se mostrará en las ventanas de Zenity. Centraliza el texto para reutilizarlo.
+
+
+    command -v zenity >/dev/null 2>&1 || {
+Comprueba si zenity está en el PATH.
+
+command -v zenity devuelve 0 si existe.
+Redirecciones >/dev/null 2>&1 silencian salida estándar y de error.
+|| { } ejecuta el bloque si el comando de la izquierda falla (código ≠ 0).
+
+    echo "Necesitas 'zenity' instalado." >&2
+Muestra un mensaje de error por stderr (>&2) para dejar claro que es un fallo.
+
+exit 1
+Salida inmediata del script con código de error 1 (fallo en dependencias).
+
+}
+Cierra el bloque { ... } del ||.
+
+while true; do
+Bucle infinito del menú: tras ejecutar una opción, vuelve a mostrar el menú.
+
+11–21. Bloque de construcción del diálogo de Zenity y captura del resultado:
+
+ELECCION="$( ... )" || exit 0
+Ejecuta Zenity y captura su salida (la opción seleccionada).
+Si el usuario cierra la ventana o pulsa “Cancelar”, Zenity devuelve código ≠ 0 y entonces || exit 0 sale educadamente del menú.
+
+zenity --list \
+Abre un diálogo de lista.
+
+--title="$APP_TITLE"
+Título de la ventana (usa la variable definida arriba).
+
+--text="Selecciona la operación que deseas realizar:"
+Texto descriptivo en la parte superior del diálogo.
+
+--column="ID" --column="Acción"
+Define dos columnas en la tabla: “ID” y “Acción”.
+
+Las siguientes líneas añaden filas (pares ID + Acción):
+1 "Generar claves RSA"
+2 "Visualizar clave pública"
+3 "Cifrar/Descifrar (Simétrico u Híbrido)"
+4 "Gestión de claves públicas (buscar/importar/exportar)"
+0 "Salir"
+
+--height=360 --width=560
+Tamaño inicial de la ventana (alto y ancho en píxeles).
+
+case "$ELECCION" in
+Inicia un despachador según el valor seleccionado en ELECCION (el ID de la primera columna).
+
+23–27. Rama opción 1 (“Generar claves RSA”):
+
+1) abre la rama del case.
+
+if [[ -x ./generar_claves.sh ]]; then ./generar_claves.sh
+Comprueba si el script ./generar_claves.sh existe y es ejecutable (-x). Si sí, lo ejecuta.
+(Este patrón evita que el menú “reviente” si aún no has creado el script.)
+
+else zenity --info --title="$APP_TITLE" --text="Pendiente: ./generar_claves.sh"; fi
+Si no existe/ejecutable, muestra un aviso informativo con Zenity.
+
+;;
+Fin de la rama 1.
+
+28–32. Rama opción 2 (“Visualizar clave pública”):
+Mismo patrón que el anterior, pero con ./ver_publica.sh.
+
+33–37. Rama opción 3 (“Cifrar/Descifrar…”):
+Mismo patrón, ahora llamando a ./simetrico.sh.
+
+Nota: dentro de simetrico.sh habrá otro submenú (Zenity) con las operaciones de cifrado/descifrado simétrico e híbrido.
+
+38–42. Rama opción 4 (“Gestión de claves públicas”):
+Mismo patrón, con ./gestion_publicas.sh.
+
+0) exit 0 ;;
+Si el usuario elige 0, salir del programa con código 0 (salida normal).
+
+44–45. *) zenity --error --title="$APP_TITLE" --text="Opción no válida." ;;
+Rama por defecto (*): si llega un valor inesperado (p.ej., vacío), muestra un error con Zenity.
+
+esac
+Cierra el case.
+
+done
+Cierra el while true (vuelve a mostrar el menú).
