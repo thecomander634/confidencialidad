@@ -83,6 +83,7 @@ openssl rsa -in private.pem -pubout -out public.pem
 
 
 2048 te vale para la práctica; 4096 es más “tocho” y tarda un pelín más.
+<img width="383" height="204" alt="Captura de pantalla 2025-10-17 194050" src="https://github.com/user-attachments/assets/114d6184-df81-4af2-948a-bd2cca904527" />
 
 </details>
 <details> <summary><b>B) <code>ver_publica.sh</code> — Ver una pública “bonita”</b></summary>
@@ -90,8 +91,10 @@ openssl rsa -in private.pem -pubout -out public.pem
 Seleccionas un archivo .pem/.pub.
 
 Si es pública, la muestra (módulo, exponente, etc.).
+<img width="874" height="650" alt="Captura de pantalla 2025-10-17 194309" src="https://github.com/user-attachments/assets/0cd31579-fc87-4697-b238-c9c7ad535bf1" />
 
 Si por error eliges una privada, te ofrece sacar su pública.
+<img width="607" height="191" alt="Captura de pantalla 2025-10-17 194340" src="https://github.com/user-attachments/assets/d704d6bf-4c5e-4875-af41-9440d4bfdab2" />
 
 Comandos:
 
@@ -122,6 +125,7 @@ openssl enc -d -aes-256-cbc -pbkdf2 -in CIFRADO.enc -out DESCIFRADO -pass file:k
 Cifra datos con AES → data.enc
 
 Cifra la clave AES con pública RSA → aes.key.enc
+<img width="462" height="203" alt="image" src="https://github.com/user-attachments/assets/dec9c97d-4076-4616-9671-40e60d835708" />
 
 openssl rand 32 > aes.tmp
 openssl enc -aes-256-cbc -salt -pbkdf2 -in ORIGEN -out data.enc -pass file:aes.tmp
@@ -129,13 +133,13 @@ openssl pkeyutl -encrypt -pubin -inkey public.pem -in aes.tmp -out aes.key.enc
 # (por defecto PKCS#1 v1.5; si piden OAEP, añade:
 #  -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256)
 
-#4) Descifrar híbrido (AES + RSA privada)
+# 4) Descifrar híbrido (AES + RSA privada)
 
 Recupera clave AES con privada → descifra data.enc.
 
 openssl pkeyutl -decrypt -inkey private.pem -in aes.key.enc -out aes.tmp
 openssl enc -d -aes-256-cbc -pbkdf2 -in data.enc -out RECUPERADO -pass file:aes.tmp
-# (el script borra aes.tmp al terminar)
+ (el script borra aes.tmp al terminar)
 
 
 Resumen mental del híbrido:
@@ -154,7 +158,7 @@ Exportar: saca una pública desde keyring/ a otra ruta.
 find DIRECTORIO -type f \( -name "*.pem" -o -name "*.pub" -o -name "*_public.pem" \)
 
 </details>
-# ✅ 5) Ejemplos rápidos (para probar que todo va)
+# 5) Ejemplos rápidos (para probar que todo va)
 
 Generar claves
 
