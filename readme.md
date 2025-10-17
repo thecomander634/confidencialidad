@@ -1,28 +1,38 @@
-scripts Bash con ventanitas (Zenity) para practicar confidencialidad:
+🔐 Confidencialidad con Bash + Zenity (OpenSSL)
 
-Generar claves RSA (privada + pública)
+Scripts Bash con ventanitas (Zenity) para practicar confidencialidad:
 
-Cifrar/Descifrar simétrico (AES-256 con clave aleatoria)
+✅ Generar claves RSA (privada + pública)
 
-Cifrar/Descifrar híbrido (datos con AES y la clave AES protegida con RSA)
+✅ Cifrar/Descifrar simétrico (AES-256 con clave aleatoria)
 
-Ver, buscar, importar y exportar claves públicas
+✅ Cifrar/Descifrar híbrido (datos con AES y la clave AES protegida con RSA)
 
-No necesitas ser experto en OpenSSL. El menú te guía.
+✅ Ver, buscar, importar y exportar claves públicas
 
-1) Requisitos e instalación
+No necesitas ser experto en OpenSSL. El menú te guía. 😉
 
-En Ubuntu/Debian (o similares):
+🚀 1) Requisitos, instalación y uso
+Requisitos
 
+Ubuntu/Debian (o similar)
+
+bash, zenity, openssl
+
+Instalación
 sudo apt update
 sudo apt install -y zenity openssl
 
-Dar permisos a los scripts (en la carpeta del proyecto):
+# Dar permisos a los scripts (dentro de la carpeta del proyecto)
 chmod +x menu.sh simetrico.sh generar_claves.sh ver_publica.sh gestion_publicas.sh
-crear carpeta keyring para futuras claves:
+
+# Crear carpeta para las claves importadas
 mkdir -p keyring
 
-2) Estructura del proyecto
+Uso rápido
+./menu.sh
+
+🗂️ 2) Estructura del proyecto
 confidencialidad/
 |--- menu.sh                  # Menú principal
 |--- simetrico.sh             # Submenú: cifrar/descifrar (simétrico u híbrido)
@@ -31,10 +41,11 @@ confidencialidad/
 |--- gestion_publicas.sh      # Buscar/Importar/Exportar públicas
 |--- keyring/                 # Carpeta local para guardar públicas importadas
 
-3) Cómo se usa (paso a paso)
+🧭 3) Cómo se usa (paso a paso)
 Arrancar el menú
 ./menu.sh
 
+<img width="799" height="93" alt="Captura de pantalla 2025-10-17 193049" src="https://github.com/user-attachments/assets/6e7cefd1-f359-43f5-a8df-006b85875696" />
 
 Verás una ventana con opciones:
 
@@ -50,187 +61,144 @@ Salir
 
 El menú se repite tras cada acción para que no tengas que relanzar nada.
 
-4) Qué hace cada script (y por qué)
-    A) generar_claves.sh — Generar par RSA
+<img width="641" height="465" alt="Captura de pantalla 2025-10-17 192922" src="https://github.com/user-attachments/assets/761b9d99-dfd6-492e-ac72-f9bef1f348b1" />
+🛠️ 4) Qué hace cada script (y por qué)
+<details> <summary><b>A) <code>generar_claves.sh</code> — Generar par RSA</b></summary>
 
 Te pide carpeta destino y tamaño (2048 o 4096 bits).
-
 Crea:
 
 private.pem → clave privada (guárdala bien; solo tú)
 
 public.pem → clave pública (esta sí puedes compartir)
 
-Comandos clave dentro del script (explicados simple):
+Comandos clave (simple):
 
+# Genera la privada RSA con el número de bits elegido
 openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:<BITS> -out private.pem
-→ Genera la privada RSA con el número de bits que elijas.
-Si marcaste passphrase, añade -aes-256-cbc -pass pass:TU_PASS para cifrar la privada en disco.
 
+# Saca la pública desde la privada
 openssl rsa -in private.pem -pubout -out public.pem
-→ Saca la pública desde la privada.
 
-Consejito: 2048 te vale para la práctica; 4096 es más “tocho” y tarda un pelín más.
 
-    B) ver_publica.sh — Ver una pública “bonita”
+2048 te vale para la práctica; 4096 es más “tocho” y tarda un pelín más.
+
+</details>
+<details> <summary><b>B) <code>ver_publica.sh</code> — Ver una pública “bonita”</b></summary>
 
 Seleccionas un archivo .pem/.pub.
 
-Si es pública, la muestra en modo legible (módulo, exponente, etc.).
+Si es pública, la muestra (módulo, exponente, etc.).
 
-Si sin querer eliges una privada, te pregunta si quiere sacar su pública (si tiene passphrase, te la pide).
+Si por error eliges una privada, te ofrece sacar su pública.
 
-Comandos clave:
+Comandos:
 
+# Leer pública en modo legible
 openssl rsa -pubin -in CLAVE_PUB.pem -text -noout
-→ -pubin le dice a OpenSSL que lo de entrada es una pública.
--text saca los datos “bonitos”; -noout evita volcar el bloque base64.
 
+# Extraer pública desde una privada
 openssl rsa -in CLAVE_PRIV.pem -pubout
-→ Extrae la pública desde la privada (pide pass si estaba protegida).
 
-    C) simetrico.sh — Cifrar/Descifrar Simétrico e Híbrido
+</details>
+<details> <summary><b>C) <code>simetrico.sh</code> — Cifrar/Descifrar Simétrico e Híbrido</b></summary>
+1) Cifrar (AES-256, clave aleatoria)
 
-Al entrar aquí verás un submenú:
+Eliges archivo → genera key.bin (32 bytes) → crea archivo.enc.
 
-Cifrar (AES-256, clave aleatoria)
-
-Te pide el archivo a cifrar.
-
-Genera una clave aleatoria de 32 bytes y te deja guardarla (ej. key.bin).
-
-Cifra el archivo a loquesea.enc.
-
-Comandos:
-
-openssl rand 32 > key.bin → Crea una clave aleatoria (32 bytes = 256 bits).
-
+openssl rand 32 > key.bin
 openssl enc -aes-256-cbc -salt -pbkdf2 -in ORIGEN -out SALIDA -pass file:key.bin
+# -aes-256-cbc (AES)
+# -salt + -pbkdf2 endurecen la derivación de clave
+# -pass file:key.bin usa el contenido de key.bin como “password”
 
--aes-256-cbc → algoritmo simétrico (AES-256 en modo CBC).
-
--salt + -pbkdf2 → hace la derivación de clave más segura (evita ataques tontos).
-
--pass file:key.bin → usa el contenido de key.bin como contraseña.
-
-Descifrar (AES-256)
-
-Te pide el .enc, la key.bin y un nombre de salida.
-
-Con eso te recupera el fichero original.
-
-Comando:
-
+2) Descifrar (AES-256)
 openssl enc -d -aes-256-cbc -pbkdf2 -in CIFRADO.enc -out DESCIFRADO -pass file:key.bin
+# -d = descifrar
 
--d → descifrar.
+3) Cifrar híbrido (AES + RSA pública)
 
-Cifrar híbrido (AES + RSA pública)
+Cifra datos con AES → data.enc
 
-Cifra los datos con AES (igual que el punto 1), pero la clave AES no se guarda en claro:
+Cifra la clave AES con pública RSA → aes.key.enc
 
-Se cifra esa clave AES con la RSA pública y se guarda aparte (dos ficheros de salida):
-
-datos.enc → datos cifrados con AES
-
-aes.key.enc → la clave AES cifrada con RSA pública
-
-Comandos:
-
-openssl rand 32 > aes.tmp → clave AES temporal
-
-openssl enc -aes-256-cbc -salt -pbkdf2 -in ORIGEN -out datos.enc -pass file:aes.tmp
-
+openssl rand 32 > aes.tmp
+openssl enc -aes-256-cbc -salt -pbkdf2 -in ORIGEN -out data.enc -pass file:aes.tmp
 openssl pkeyutl -encrypt -pubin -inkey public.pem -in aes.tmp -out aes.key.enc
-→ pkeyutl -encrypt con la pública cifra la clave AES.
+# (por defecto PKCS#1 v1.5; si piden OAEP, añade:
+#  -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256)
 
-Por defecto es padding PKCS#1 v1.5 (suficiente para la práctica).
-Si tu profe pide OAEP, sería:
--pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256
+4) Descifrar híbrido (AES + RSA privada)
 
-Descifrar híbrido (AES + RSA privada)
-
-Al revés:
-
-Descifras aes.key.enc con tu privada RSA para recuperar la clave AES
-
-Con esa clave ya puedes descifrar datos.enc.
-
-Comandos:
+Recupera clave AES con privada → descifra data.enc.
 
 openssl pkeyutl -decrypt -inkey private.pem -in aes.key.enc -out aes.tmp
-→ Con la privada, recuperas la clave AES original.
+openssl enc -d -aes-256-cbc -pbkdf2 -in data.enc -out RECUPERADO -pass file:aes.tmp
+# (el script borra aes.tmp al terminar)
 
-openssl enc -d -aes-256-cbc -pbkdf2 -in datos.enc -out RECUPERADO -pass file:aes.tmp
-→ Descifra los datos. (El script borra el tmp al terminar.)
 
 Resumen mental del híbrido:
 “Archivo grande” → AES (rápido)
-“Clave AES” → RSA (segura para compartirla con el destinatario)
+“Clave AES” → RSA (seguro para compartirla)
 
-    D) gestion_publicas.sh — Buscar/Importar/Exportar
+</details>
+<details> <summary><b>D) <code>gestion_publicas.sh</code> — Buscar/Importar/Exportar</b></summary>
 
-Buscar: eliges un directorio y escanea ficheros que parezcan públicas: *.pem, *.pub, *_public.pem.
-(No busca por todo / para no tardar la vida; tú eliges la carpeta.)
+Buscar: escanea una carpeta en busca de *.pem, *.pub, *_public.pem.
 
-Importar: seleccionas una pública y se copia a ./keyring/ (ajustando permisos a 600).
+Importar: copia una pública a ./keyring/ (permiso 600).
 
-Exportar: lista lo que hay en keyring/ y copias una pública a otra ruta.
-
-Comando clave de búsqueda:
+Exportar: saca una pública desde keyring/ a otra ruta.
 
 find DIRECTORIO -type f \( -name "*.pem" -o -name "*.pub" -o -name "*_public.pem" \)
 
-5) Ejemplos rápidos (para probar que todo va)
+</details>
+✅ 5) Ejemplos rápidos (para probar que todo va)
 
 Generar claves
-./generar_claves.sh → elige carpeta y 2048 bits → tendrás private.pem y public.pem.
+
+./generar_claves.sh   # elige carpeta y 2048 bits → private.pem + public.pem
+
 
 Cifrado simétrico
-./simetrico.sh → opción “Cifrar (AES-256)” → te genera key.bin y archivo.enc.
+
+./simetrico.sh        # “Cifrar (AES-256)” → key.bin + archivo.enc
+
 
 Descifrado simétrico
-./simetrico.sh → “Descifrar (AES-256)” → usa key.bin y archivo.enc → recuperas el original.
+
+./simetrico.sh        # “Descifrar (AES-256)” → usa key.bin + archivo.enc
+
 
 Híbrido
-./simetrico.sh → “Cifrar híbrido” → te da datos.enc + aes.key.enc.
-En otra máquina (que tenga la privada que corresponde a tu public.pem) → “Descifrar híbrido”.
+
+./simetrico.sh        # “Cifrar híbrido” → data.enc + aes.key.enc
+# En el receptor: “Descifrar híbrido” con su private.pem
+
 
 Ver pública
-./ver_publica.sh → selecciona public.pem → verás info legible.
+
+./ver_publica.sh      # selecciona public.pem
+
 
 Gestión públicas
-./gestion_publicas.sh → busca/importa/exporta.
 
-6) Dónde mirar los archivos generados
+./gestion_publicas.sh # busca/importa/exporta
 
-RSA: private.pem (secreta), public.pem (compartible)
+🧠 6) Breve explicación del cifrado híbrido
 
-Simétrico: key.bin (secreta), loque-sea.enc
+El cifrado híbrido combina simétrico y asimétrico para aprovechar lo mejor de cada uno:
 
-Híbrido: data.enc (o similar) + aes.key.enc
+AES (simétrico) cifra el archivo usando una clave aleatoria (rápido y eficiente).
 
-Keyring: públicas importadas en ./keyring/
+RSA (asimétrico) protege esa clave AES cifrándola con la clave pública del destinatario.
 
-NO subas private.pem ni key.bin a nubes, repos públicos, etc.
+Entregas dos ficheros:
 
-7) Errores típicos y cómo arreglarlos
+data.enc: datos cifrados con AES
 
-“zenity: command not found” → sudo apt install -y zenity
+aes.key.enc: clave AES cifrada con la pública RSA
 
-“openssl: command not found” → sudo apt install -y openssl
+El destinatario usa su clave privada para descifrar aes.key.enc y recuperar la clave AES, con la que descifra data.enc.
 
-“bad decrypt” al descifrar AES → Clave equivocada o .enc no corresponde con esa key.bin.
-
-No abre una pública en ver_publica.sh → puede que seleccionaste una privada; dile “sí” a extraer pública; si está protegida, mete la pass.
-
-No puede descifrar híbrido → Asegúrate de usar la privada que corresponde a la pública usada para cifrar, y que aes.key.enc y data.enc son pareja.
-
-8) Consejos de seguridad (mínimos)
-
-Mantén permisos de claves: chmod 600 private.pem key.bin
-
-Borra temporales sensibles cuando acabes (el script ya “shredea” lo crítico en híbrido, pero si haces pruebas, limpia).
-
-Si vas a entregar la práctica: comprime la carpeta sin incluir private.pem ni key.bin si no te lo piden expresamente.
-
+Ventajas: rápido para archivos grandes (AES), seguro al distribuir la clave (RSA), patrón estándar (PGP, TLS, etc.).
