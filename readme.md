@@ -91,11 +91,10 @@ openssl rsa -in private.pem -pubout -out public.pem
 Seleccionas un archivo .pem/.pub.
 
 Si es pública, la muestra (módulo, exponente, etc.).
-<img width="874" height="650" alt="Captura de pantalla 2025-10-17 194309" src="https://github.com/user-attachments/assets/0cd31579-fc87-4697-b238-c9c7ad535bf1" />
+<img width="874" height="650" alt="Captura de pantalla 2025-10-17 194309" src="https://github.com/user-attachments/assets/db0c86ed-20b6-453e-a1fb-1c2ba9deb095" />
 
 Si por error eliges una privada, te ofrece sacar su pública.
-<img width="607" height="191" alt="Captura de pantalla 2025-10-17 194340" src="https://github.com/user-attachments/assets/d704d6bf-4c5e-4875-af41-9440d4bfdab2" />
-
+<img width="607" height="191" alt="Captura de pantalla 2025-10-17 194340" src="https://github.com/user-attachments/assets/5e87a512-1540-4fda-ae44-0d5f8d8b6dec" />
 Comandos:
 
  Leer pública en modo legible
